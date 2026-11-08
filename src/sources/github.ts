@@ -320,7 +320,11 @@ async function pollNotifications(ctx: SourceContext, round: Round): Promise<{ co
     const address = githubAddress(notification.subject.url ?? '', repository)
     if (!address || address.discussion || items.has(address.number)) continue
     const { number, pr } = address
-    items.set(number, { since: [state.get(KV.github.cursor(number)) ?? since, since].sort().at(-1)!, pr })
+    const cursor = state.get(KV.github.cursor(number))
+    // A notification can wake up an older thread long after the Source-level cursor has advanced.
+    // When that happens, the thread cursor is the last known point that safely includes unread comments for that thread.
+    // Falling back to the newer Source cursor would skip those comments entirely.
+    items.set(number, { since: cursor ?? since, pr })
   }
   for (const [number, item] of items) {
     if (stopped(ctx, round)) return { count: notifications.length, interval }

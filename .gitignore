@@ -3,3 +3,13 @@ lib/
 .artifacts/
 .env
 coverage/
+.pnpm-store/
+docker/data/dsh-home/*
+!docker/data/dsh-home/.gitkeep
+docker/data/gh-agent/*
+!docker/data/gh-agent/.gitkeep
+docker/data/local-bin/*
+!docker/data/local-bin/.gitkeep
+docker/data/lark-bot/*
+!docker/data/lark-bot/.gitkeep
+docker/data/model.env

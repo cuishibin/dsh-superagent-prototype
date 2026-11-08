@@ -863,6 +863,22 @@ describe('github source', () => {
     expect(reads.filter(path => path.includes('/comments'))).toEqual([`issues/12/comments?per_page=100&since=${since}`])
     h.store.close()
   })
+  it('reads notified comments from the thread cursor even when the global notification cursor is newer', async () => {
+    const h = host()
+    const url = 'https://github.com/acme/widgets/issues/12'
+    // A later notification can point back to an older thread whose own cursor still trails behind the global notification cursor.
+    // In that case the thread cursor is the last safe point for comment reads; using the newer global cursor would skip the comment.
+    h.store.set('github-cursor:12', '2026-09-08T00:00:00.000Z')
+    const comment: GithubComment = { id: 6, body: '@agent-bot please pick this up', user: { login: 'alice', type: 'User' },
+      html_url: `${url}#issuecomment-6`, created_at: '2026-09-09T00:00:00Z', updated_at: '2026-09-09T00:00:00Z' }
+    const { reads } = notify(h, [issue(12, { created_at: '2026-08-01T00:00:00Z', updated_at: '2026-09-10T00:00:00Z' })], { 12: [comment] },
+      '2026-09-10T00:00:00.000Z')
+    await pollRound(h)
+    expect(h.receive.mock.calls.map(([trigger]) => trigger)).toEqual([commentTrigger(comment, { number: 12, isPr: false, url }, 'conversation', 'agent-bot')])
+    const since = encodeURIComponent('2026-09-08T00:00:00.000Z')
+    expect(reads.filter(path => path.includes('/comments'))).toEqual([`issues/12/comments?per_page=100&since=${since}`])
+    h.store.close()
+  })
   it('keeps one body Trigger for an Issue that a later poll reads again', async () => {
     const h = host()
     // Opened just before the poll, the Issue is still after the cursor the next poll reads from.

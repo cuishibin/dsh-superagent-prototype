@@ -1,0 +1,47 @@
+services:
+  dsh-superagent-init:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: dsh-superagent:dev
+    container_name: dsh-superagent-init
+    user: "root"
+    working_dir: /workspace/dsh-superagent
+    command:
+      - bash
+      - -lc
+      - mkdir -p /home/app/.dsh /home/app/.config/gh-agent /home/app/.local/bin /home/app/.config/lark-bot && chown -R app:app /home/app/.dsh /home/app/.config /home/app/.local
+    environment:
+      DSH_HOME: /home/app/.dsh
+    volumes:
+      - ./data/dsh-home:/home/app/.dsh
+      - ./data/gh-agent:/home/app/.config/gh-agent
+      - ./data/local-bin:/home/app/.local/bin
+      - ./data/lark-bot:/home/app/.config/lark-bot
+
+  dsh-superagent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: dsh-superagent:dev
+    container_name: dsh-superagent-dev
+    depends_on:
+      dsh-superagent-init:
+        condition: service_completed_successfully
+    working_dir: /workspace/dsh-superagent
+    command: bash
+    tty: true
+    stdin_open: true
+    ports:
+      - "3082:3082"
+    # Keep model credentials outside tracked files while still making them persistent for local Docker runs.
+    env_file:
+      - ./data/model.env
+    environment:
+      DSH_HOME: /home/app/.dsh
+    volumes:
+      - ./data/dsh-home:/home/app/.dsh
+      - ./data/gh-agent:/home/app/.config/gh-agent
+      - ./data/local-bin:/home/app/.local/bin
+      - ./data/lark-bot:/home/app/.config/lark-bot
+      - ..:/workspace/dsh-superagent

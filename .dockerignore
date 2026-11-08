@@ -1,0 +1,10 @@
+.git
+.gitignore
+.artifacts
+.screenshots
+.env
+coverage
+lib
+node_modules
+.pnpm-store
+docker/data
