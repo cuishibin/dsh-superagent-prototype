@@ -34,6 +34,32 @@ Read the numbered documents in order; each builds only on the ones before it.
 
 `pnpm check` runs the typecheck, the tests and the build.
 
+## 常见问题（FAQ）
+
+**这是什么项目？**
+
+dsh-superagent 是一个面向单个 GitHub 仓库的主动式编码 agent，以 DeepSeek Harness bundle 的形式运行。它监听 GitHub（以及可选的 Feishu），在获得授权后自动开工、在自己的会话和目录里完成工作，并回到原始对话中交付结果（例如一个 pull request）。详见上文“Documentation”一节。
+
+**如何安装和配置？**
+
+不需要手动执行繁琐步骤。请让你的编码 agent 阅读 [SETUP.md](SETUP.md) 并和你一起完成安装：它会一次只问一个简短的问题，展示完整计划后再执行。
+
+**它什么时候会自己行动？**
+
+只有两种情况：有人明确要求它做事，或团队编写的规则允许它行动。它只在有人必须处理或可以使用结果时才发声，以尽量少占用人的注意力。授权机制的细节见 [docs/002-authorization.md](docs/002-authorization.md)。
+
+**支持哪些消息来源？**
+
+目前支持 GitHub（Issue、PR 及其评论等）和 Feishu。如何新增一个 Source，见 [docs/008-cookbook.md](docs/008-cookbook.md)。
+
+**部署、升级或遇到故障怎么办？**
+
+参见 [docs/006-deployment.md](docs/006-deployment.md)，其中包含手动部署、配置、升级与故障排查的说明。
+
+**这是官方产品吗？**
+
+不是。这是一个供参考的研究原型，并非 DeepSeek 的官方产品，可能包含 bug，请先审查并适配后再用于你自己的环境。
+
 ## License
 
 [MIT](LICENSE)
